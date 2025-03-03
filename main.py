@@ -1,104 +1,57 @@
-{
-  "nbformat": 4,
-  "nbformat_minor": 0,
-  "metadata": {
-    "colab": {
-      "provenance": [],
-      "toc_visible": true,
-      "authorship_tag": "ABX9TyPMHtdM+VyBY9XCq2iBXSSd",
-      "include_colab_link": true
-    },
-    "kernelspec": {
-      "name": "python3",
-      "display_name": "Python 3"
-    },
-    "language_info": {
-      "name": "python"
-    }
-  },
-  "cells": [
-    {
-      "cell_type": "markdown",
-      "metadata": {
-        "id": "view-in-github",
-        "colab_type": "text"
-      },
-      "source": [
-        "<a href=\"https://colab.research.google.com/github/MehakHamid/NumberGuessGamePython/blob/main/main.py\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
-      ]
-    },
-    {
-      "cell_type": "code",
-      "execution_count": 1,
-      "metadata": {
-        "colab": {
-          "base_uri": "https://localhost:8080/"
-        },
-        "id": "2J2YxNQXp_j-",
-        "outputId": "29698cda-0282-4a10-e0a4-2fe60447d0c7"
-      },
-      "outputs": [
-        {
-          "output_type": "stream",
-          "name": "stdout",
-          "text": [
-            "🎯 Welcome to the Number Guessing Game! 🎯\n",
-            "Guess the number (between 1 and 100). You have 7 attempts.\n",
-            "Attempt 1/7: Enter your guess: 7\n",
-            "Too low! Try again. ⬆️\n",
-            "Attempt 2/7: Enter your guess: 5\n",
-            "Too low! Try again. ⬆️\n",
-            "Attempt 3/7: Enter your guess: 70\n",
-            "Too high! Try again. ⬇️\n",
-            "Attempt 4/7: Enter your guess: 50\n",
-            "Too low! Try again. ⬆️\n",
-            "Attempt 5/7: Enter your guess: 0\n",
-            "⚠️ Out of range! Guess a number between 1 and 100.\n",
-            "Attempt 5/7: Enter your guess: 80\n",
-            "Too high! Try again. ⬇️\n",
-            "Attempt 6/7: Enter your guess: 60\n",
-            "Too high! Try again. ⬇️\n",
-            "Attempt 7/7: Enter your guess: 2\n",
-            "Too low! Try again. ⬆️\n",
-            "😢 You've used all 7 attempts! The correct number was 51.\n"
-          ]
-        }
-      ],
-      "source": [
-        "import random\n",
-        "\n",
-        "def number_guessing_game():\n",
-        "    secret_number = random.randint(1, 100)  # Generate a random number between 1 and 100\n",
-        "    max_attempts = 7  # Limit the number of attempts\n",
-        "    attempts = 0\n",
-        "    print(\"🎯 Welcome to the Number Guessing Game! 🎯\")\n",
-        "    print(\"Guess the number (between 1 and 100). You have 7 attempts.\")\n",
-        "\n",
-        "    while attempts < max_attempts:\n",
-        "        try:\n",
-        "            guess = int(input(f\"Attempt {attempts + 1}/{max_attempts}: Enter your guess: \"))\n",
-        "        except ValueError:\n",
-        "            print(\"❌ Invalid input! Please enter a number between 1 and 100.\")\n",
-        "            continue\n",
-        "\n",
-        "        if guess < 1 or guess > 100:\n",
-        "            print(\"⚠️ Out of range! Guess a number between 1 and 100.\")\n",
-        "            continue\n",
-        "\n",
-        "        attempts += 1\n",
-        "\n",
-        "        if guess < secret_number:\n",
-        "            print(\"Too low! Try again. ⬆️\")\n",
-        "        elif guess > secret_number:\n",
-        "            print(\"Too high! Try again. ⬇️\")\n",
-        "        else:\n",
-        "            print(f\"🎉 Congratulations! You guessed the correct number {secret_number} in {attempts} attempts. 🎉\")\n",
-        "            break\n",
-        "    else:\n",
-        "        print(f\"😢 You've used all {max_attempts} attempts! The correct number was {secret_number}.\")\n",
-        "if __name__ == \"__main__\":\n",
-        "    number_guessing_game()\n"
-      ]
-    }
-  ]
-}
+import streamlit as st
+import random
+
+# Set Streamlit page config
+st.set_page_config(page_title="Number Guessing Game", page_icon="🎯", layout="centered")
+
+# Initialize session state variables
+if "secret_number" not in st.session_state:
+    st.session_state.secret_number = random.randint(1, 100)
+if "attempts" not in st.session_state:
+    st.session_state.attempts = 0
+if "max_attempts" not in st.session_state:
+    st.session_state.max_attempts = 7
+if "game_over" not in st.session_state:
+    st.session_state.game_over = False
+if "message" not in st.session_state:
+    st.session_state.message = ""
+
+# Title and Instructions
+st.markdown("<h1 style='text-align: center; color: #4CAF50;'>🎯 Number Guessing Game</h1>", unsafe_allow_html=True)
+st.markdown("""
+    <p style='text-align: center; font-size: 18px; color: #333;'>
+    Guess a number between **1 and 100**. You have **7 attempts**. Let's see if you can guess it! 🚀
+    </p>
+""", unsafe_allow_html=True)
+
+# Display previous message
+if st.session_state.message:
+    st.warning(st.session_state.message)
+
+# User Input
+if not st.session_state.game_over:
+    guess = st.number_input("Enter your guess:", min_value=1, max_value=100, step=1, key="guess", format="%d")
+
+    # Button to check guess
+    if st.button("Submit Guess"):
+        st.session_state.attempts += 1
+        if guess < st.session_state.secret_number:
+            st.session_state.message = f"🔼 Too low! You have {st.session_state.max_attempts - st.session_state.attempts} attempts left."
+        elif guess > st.session_state.secret_number:
+            st.session_state.message = f"🔽 Too high! You have {st.session_state.max_attempts - st.session_state.attempts} attempts left."
+        else:
+            st.success(f"🎉 Congratulations! You guessed the correct number **{st.session_state.secret_number}** in {st.session_state.attempts} attempts!")
+            st.session_state.game_over = True
+
+        # If max attempts reached
+        if st.session_state.attempts >= st.session_state.max_attempts and guess != st.session_state.secret_number:
+            st.session_state.message = f"😢 Game Over! The correct number was **{st.session_state.secret_number}**."
+            st.session_state.game_over = True
+
+# Restart Button
+if st.session_state.game_over:
+    if st.button("🔄 Play Again"):
+        st.session_state.secret_number = random.randint(1, 100)
+        st.session_state.attempts = 0
+        st.session_state.game_over = False
+        st.session_state.message = ""
